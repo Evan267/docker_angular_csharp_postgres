@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /data/postgres
+    volumes:
+      - postgres:/data/postgres
+    networks:
+      - postgres
+    
+  backend:
+    image: photos/backend:latest
+    restart: unless-stopped
+    environment:
+      ASPNETCORE_ENVIRONMENET: Production
+    ports:
+      - "5000:8080"
+    depends_on:
+      - postgres
+    networks:
+      - backend_net
+
+  frontend:
+    image: myapp/frontend:latest
+    restart: unless-stopped
+    environment:
+      NODE_ENV: development
+    ports:
+      - "80:80"
+    networks:
+      - frontend_net
+
+networks:
+  postgres:
+    driver: bridge
+  backend_net:
+    driver: bridge
+  frontend_net:
+    driver: bridge
+
+volumes:
+  postgres:
